@@ -23,7 +23,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inference-only Qwen2 model compatible with HuggingFace weights."""
-from typing import Optional
+from typing import Optional, Union, Iterable
 from packaging.version import parse as vparse
 import vllm
 
@@ -58,26 +58,29 @@ class CosyVoice2ForCausalLM(nn.Module, SupportsLoRA, SupportsPP):
         self.lora_config = lora_config
 
         self.quant_config = quant_config
-        self.model = Qwen2Model(vllm_config=vllm_config,
-                                prefix=maybe_prefix(prefix, "model"))
+        self.model = Qwen2Model(
+            vllm_config=vllm_config, prefix=maybe_prefix(prefix, "model")
+        )
 
         if get_pp_group().is_last_rank:
             if config.tie_word_embeddings:
                 self.lm_head = self.model.embed_tokens
             else:
-                self.lm_head = ParallelLMHead(config.vocab_size,
-                                              config.hidden_size,
-                                              True,
-                                              quant_config=quant_config,
-                                              prefix=maybe_prefix(
-                                                  prefix, "lm_head"))
+                self.lm_head = ParallelLMHead(
+                    config.vocab_size,
+                    config.hidden_size,
+                    True,
+                    quant_config=quant_config,
+                    prefix=maybe_prefix(prefix, "lm_head"),
+                )
         else:
             self.lm_head = PPMissingLayer()
 
         self.logits_processor = LogitsProcessor(config.vocab_size)
 
         self.make_empty_intermediate_tensors = (
-            self.model.make_empty_intermediate_tensors)
+            self.model.make_empty_intermediate_tensors
+        )
 
     def get_input_embeddings(self, input_ids: torch.Tensor) -> torch.Tensor:
         return self.model.get_input_embeddings(input_ids)
@@ -89,8 +92,9 @@ class CosyVoice2ForCausalLM(nn.Module, SupportsLoRA, SupportsPP):
         intermediate_tensors: Optional[IntermediateTensors] = None,
         inputs_embeds: Optional[torch.Tensor] = None,
     ) -> Union[torch.Tensor, IntermediateTensors]:
-        hidden_states = self.model(input_ids, positions, intermediate_tensors,
-                                   inputs_embeds)
+        hidden_states = self.model(
+            input_ids, positions, intermediate_tensors, inputs_embeds
+        )
         return hidden_states
 
     def compute_logits(
@@ -99,18 +103,18 @@ class CosyVoice2ForCausalLM(nn.Module, SupportsLoRA, SupportsPP):
         sampling_metadata: Optional[SamplingMetadata] = None,
     ) -> Optional[torch.Tensor]:
         if VLLM_V1_ENGINE_ONLY:
-            logits = self.logits_processor(self.lm_head, hidden_states, 
-                                           self.lm_head.bias)
+            logits = self.logits_processor(
+                self.lm_head, hidden_states, self.lm_head.bias
+            )
         else:
-            logits = self.logits_processor(self.lm_head, hidden_states,
-                                           sampling_metadata, self.lm_head.bias)
+            logits = self.logits_processor(
+                self.lm_head, hidden_states, sampling_metadata, self.lm_head.bias
+            )
         return logits
 
-    def load_weights(self, weights: Iterable[tuple[str,
-                                                   torch.Tensor]]) -> set[str]:
+    def load_weights(self, weights: Iterable[tuple[str, torch.Tensor]]) -> set[str]:
         loader = AutoWeightsLoader(
             self,
-            skip_prefixes=(["lm_head."]
-                           if self.config.tie_word_embeddings else None),
+            skip_prefixes=(["lm_head."] if self.config.tie_word_embeddings else None),
         )
         return loader.load_weights(weights)
