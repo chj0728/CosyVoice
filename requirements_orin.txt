@@ -1,0 +1,25 @@
+modelscope
+HyperPyYAML
+openai-whisper #whisper
+inflect
+regex
+transformers==4.51.3
+omegaconf
+scipy
+conformer
+diffusers
+hydra-core
+lightning
+gdown
+matplotlib
+wget
+x-transformers
+librosa
+pyarrow
+pyworld
+uvicorn
+fastapi
+argparse
+python-multipart
+packaging
+numpy==1.26.4
