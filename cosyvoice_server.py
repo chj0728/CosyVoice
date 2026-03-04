@@ -15,7 +15,7 @@ from cosyvoice.cli.cosyvoice import AutoModel
 from cosyvoice.utils.common import set_all_random_seed
 from tqdm import tqdm
 
-app = FastAPI()
+app = FastAPI(title="CosyVoice TTS Server")
 
 import io
 import wave
