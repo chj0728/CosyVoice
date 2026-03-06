@@ -29,9 +29,10 @@ pycountry==26.2.16
 PySocks==1.7.1
 pyworld==0.3.5
 tensorboard==2.14.0
-tensorrt-cu12==10.0.1
-tensorrt-cu12-bindings==10.0.1
-tensorrt-cu12-libs==10.0.1
+tensorrt==10.15.1.29
+# tensorrt-cu12==10.0.1
+# tensorrt-cu12-bindings==10.0.1
+# tensorrt-cu12-libs==10.0.1
 torchaudio==2.11.0.dev20260302+cu128
 torchcodec==0.11.0.dev20260227+cu128
 torchvision==0.26.0.dev20260302+cu128
