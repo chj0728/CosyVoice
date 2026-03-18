@@ -103,9 +103,8 @@ class CosyVoice2ForCausalLM(nn.Module, SupportsLoRA, SupportsPP):
         sampling_metadata: Optional[SamplingMetadata] = None,
     ) -> Optional[torch.Tensor]:
         if VLLM_V1_ENGINE_ONLY:
-            logits = self.logits_processor(
-                self.lm_head, hidden_states, self.lm_head.bias
-            )
+            logits = self.logits_processor(self.lm_head, hidden_states,
+                                           self.lm_head.bias)
         else:
             logits = self.logits_processor(
                 self.lm_head, hidden_states, sampling_metadata, self.lm_head.bias
