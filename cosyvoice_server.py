@@ -19,6 +19,7 @@ app = FastAPI(title="CosyVoice TTS Server")
 
 import io
 import wave
+import torch
 
 
 def generate_wav(model_output, sample_rate=24000):
@@ -50,11 +51,28 @@ def generate_data(model_output):
 
 
 def generate_pcm_data(model_output):
+    # for out in model_output:
+    #     pcm = out["tts_speech"].detach().cpu().numpy()
+    #     pcm = np.squeeze(pcm)
+    #     pcm = (pcm * 32768).astype(np.int16)
+    #     yield pcm.tobytes()
     for out in model_output:
-        pcm = out["tts_speech"].detach().cpu().numpy()
-        pcm = np.squeeze(pcm)
-        pcm = (pcm * 32768).astype(np.int16)
-        yield pcm.tobytes()
+        # 直接在GPU上处理，减少一次CPU拷贝
+        pcm = out["tts_speech"]  # 保持为GPU张量
+
+        # 使用PyTorch操作（如果可用）
+        if pcm.is_cuda:
+            print("Processing PCM on GPU")
+            pcm = pcm.squeeze()  # GPU上squeeze
+            pcm = (pcm * 32768).to(torch.int16)  # GPU上类型转换
+            # 直接拷贝到CPU作为bytes
+            yield pcm.cpu().numpy().tobytes()
+        else:
+            # CPU张量的处理
+            print("Processing PCM on CPU")
+            pcm = pcm.squeeze().numpy()
+            pcm = (pcm * 32768).astype(np.int16)
+            yield pcm.tobytes()
 
 
 # simplified presets-based endpoints
