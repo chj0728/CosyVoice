@@ -4,6 +4,18 @@ Contributed by Yuekai Zhang (NVIDIA).
 
 This repository provides three acceleration solutions for CosyVoice, each targeting a different model version and Token2Wav architecture. All solutions use TensorRT-LLM for LLM acceleration and NVIDIA Triton Inference Server for serving.
 
+## Platform Compatibility
+
+The Dockerfiles and `docker-compose.*.yml` examples in this directory are designed for NVIDIA's standard Triton TensorRT-LLM container flow on **Linux x86_64 + discrete NVIDIA GPU**.
+
+For **Jetson Orin**, the current instructions are **not** a direct out-of-the-box deployment path:
+
+- the provided Docker image and compose files are not Jetson-specific;
+- Jetson deployment requires JetPack-compatible Triton/TensorRT-LLM builds or containers;
+- some scripts may need additional adaptation because Jetson uses an ARM64 + integrated GPU environment.
+
+In other words, **CosyVoice can only be deployed on Jetson Orin after manual Jetson-specific porting and validation**, not by following the commands in this directory unchanged.
+
 ## Solutions
 
 ### [CosyVoice3](README.Cosyvoice3.md)
@@ -34,4 +46,3 @@ docker compose -f docker-compose.cosyvoice2.unet.yml up
 # CosyVoice2 + DiT Token2Wav
 docker compose -f docker-compose.cosyvoice2.dit.yml up
 ```
-
