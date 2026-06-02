@@ -202,6 +202,8 @@ cd fastapi && python3 client.py --port 50000 --mode <sft|zero_shot|cross_lingual
 #### Using Nvidia TensorRT-LLM for deployment
 
 Using TensorRT-LLM to accelerate cosyvoice2 llm could give 4x acceleration comparing with huggingface transformers implementation.
+The Triton/TRT-LLM instructions under `runtime/triton_trtllm` currently target the standard **x86_64 + discrete NVIDIA GPU** container workflow, so they are **not a direct out-of-the-box deployment path for Jetson Orin**.
+Jetson Orin users need Jetson-specific Triton/TensorRT-LLM builds or containers and should treat that directory as a reference that requires manual adaptation and validation.
 To quick start:
 
 ``` sh
